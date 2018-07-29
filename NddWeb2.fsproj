@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Mailbox.fs" />
     <Compile Include="AuthConfig.fs" />
     <Compile Include="Controllers/HomeController.fs" />
     <Compile Include="Models/ErrorViewModel.fs" />

@@ -15,6 +15,7 @@ type Startup private () =
 
     member this.ConfigureServices(services: IServiceCollection) =
         services
+            .AddSingleton<Mailbox.Agent>()
             .AddAuthentication()
             .AddCookie()
             .AddOpenIdConnect(AuthConfig.OidcScheme, Action<OpenIdConnectOptions> AuthConfig.setOpenIdConnectOptions)

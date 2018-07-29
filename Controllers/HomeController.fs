@@ -4,8 +4,10 @@ open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Authentication.Cookies
 
-type HomeController () =
+type HomeController (mailbox : Mailbox.Agent) =
     inherit Controller()
+
+    let replyTimeout = 1000
 
     member this.SetLoggedIn () =
         this.ViewData.["LoggedIn"] <- this.User.Identity.IsAuthenticated
@@ -15,8 +17,10 @@ type HomeController () =
         this.View()
 
     member this.About () =
+        let comments = mailbox.Value.PostAndReply ((fun ch -> Mailbox.GetComments ch), replyTimeout)
         this.SetLoggedIn()
         this.ViewData.["Message"] <- "Your application description page."
+        this.ViewData.["Comments"] <- comments
         this.View()
 
     [<Authorize(AuthenticationSchemes = AuthConfig.OidcScheme)>]
@@ -24,6 +28,12 @@ type HomeController () =
         this.SetLoggedIn()
         this.ViewData.["Message"] <- "Your contact page."
         this.View()
+
+    [<HttpPost>]
+    member this.AddComment (comment : string) =
+        mailbox.Value.Post (Mailbox.AddComment comment)
+        printfn "Comment added: %s" comment
+        this.Redirect("/Home/About")
 
     member this.Error () =
         this.SetLoggedIn()

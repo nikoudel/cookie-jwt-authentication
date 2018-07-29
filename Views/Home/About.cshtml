@@ -5,3 +5,19 @@
 <h3>@ViewData["Message"]</h3>
 
 <p>Use this area to provide additional information.</p>
+
+<form method="POST" action="/Home/AddComment">
+    <input type="text" name="comment" placeholder="Add a comment..." />
+    <input type="submit" />
+</form>
+
+@if (ViewData["Comments"] != null)
+{
+    <h4>Comments:</h4>
+    <ul>
+        @foreach (var comment in ViewData["Comments"] as IEnumerable<string>)
+        {
+            <li>@comment</li>
+        }
+    </ul>
+}
