@@ -18,6 +18,13 @@ type HomeController (mailbox : Mailbox.Agent) =
 
     member this.About () =
         let comments = mailbox.Value.PostAndReply ((fun ch -> Mailbox.GetComments ch), replyTimeout)
+        let accessToken = mailbox.Value.PostAndReply ((fun ch -> Mailbox.GetAccessToken ch), replyTimeout)
+        
+        if isNull accessToken then
+            this.ViewData.["NoToken"] <- "No access token (relogin to get one)"
+        else
+            this.ViewData.["AccessToken"] <- accessToken
+
         this.SetLoggedIn()
         this.ViewData.["Message"] <- "Your application description page."
         this.ViewData.["Comments"] <- comments
@@ -30,10 +37,11 @@ type HomeController (mailbox : Mailbox.Agent) =
         this.View()
 
     [<HttpPost>]
+    [<Authorize(AuthenticationSchemes = AuthConfig.BearerScheme)>]
     member this.AddComment (comment : string) =
         mailbox.Value.Post (Mailbox.AddComment comment)
         printfn "Comment added: %s" comment
-        this.Redirect("/Home/About")
+        "ok"
 
     member this.Error () =
         this.SetLoggedIn()
